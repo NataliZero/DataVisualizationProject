@@ -16,9 +16,9 @@ driver.get(url)
 print("Ожидание 5 секунд...")
 time.sleep(5)
 
-# Парсинг цен
+# Парсинг цен, используя предложенный CSS-селектор
 print("Начало парсинга цен...")
-prices = driver.find_elements(By.CLASS_NAME, "price__main-value")
+prices = driver.find_elements(By.CSS_SELECTOR, 'meta[itemprop="price"]')
 print(f"Найдено {len(prices)} цен.")
 
 # Сохранение данных в CSV
@@ -27,7 +27,7 @@ with open('sofa_prices.csv', mode='w', newline='', encoding='utf-8') as file:
     writer = csv.writer(file)
     writer.writerow(['Price'])  # Заголовок столбца
     for price in prices:
-        writer.writerow([price.text])
+        writer.writerow([price.get_attribute("content")])
 print("Парсинг завершен. Данные сохранены в sofa_prices.csv")
 
 # Закрытие драйвера
@@ -38,9 +38,9 @@ print("Чтение данных из CSV файла...")
 data = pd.read_csv('sofa_prices.csv')
 print(data.head())
 
-# Обработка данных: удаление нечисловых символов и преобразование в числовой тип
+# Обработка данных: преобразование в числовой тип
 print("Обработка данных...")
-data['Price'] = data['Price'].str.replace('₽', '').str.replace(' ', '').astype(int)
+data['Price'] = data['Price'].astype(float)
 
 # Подсчет средней цены
 mean_price = data['Price'].mean()
